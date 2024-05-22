@@ -7,7 +7,7 @@ type Props = {}
 import {
     LayoutDashboard,
     Send,
-    Users2, Settings , ChevronRight
+    Users2, Settings , ChevronRight , UserPlus
   } from "lucide-react"
 import { Input } from "postcss";
 import { Button } from "../ui/button";
@@ -34,6 +34,13 @@ export default function SideNavBar({} : Props) {
                 label: "",
                 icon: LayoutDashboard,
                 variant: "default",
+              },
+              {
+                title: "Add User",
+                label: "",
+                icon: UserPlus,
+                variant: "ghost",
+                href: "/add_user"
               },
               {
                 title: "Deployment",

@@ -5,6 +5,7 @@ import {cn} from '../lib/utils'
 import SideNavBar from "@/components/ui/SideNavBar";
 
 
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
