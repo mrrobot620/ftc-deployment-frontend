@@ -1,5 +1,5 @@
 import Image from "next/image";
-import PageTitle from "@/components/ui/pageTitle";
+import PageTitle from "@/components/ui/PageTitle";
 
 export default function Home() {
   return (

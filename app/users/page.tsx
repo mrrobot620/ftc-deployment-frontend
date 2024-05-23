@@ -1,5 +1,5 @@
 import React  from "react";
-import PageTitle from "@/components/ui/pageTitle";
+import PageTitle from "@/components/ui/PageTitle";
 import { DataTableDemo } from "@/components/ui/dataTable";
 
 

@@ -1,6 +1,6 @@
 "use client"
 import React, { useState } from "react";
-import PageTitle from "@/components/ui/pageTitle";
+import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -31,7 +31,6 @@ export default function AddUser() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-
     const formData = {
       casper: casper,
       name: name,
@@ -50,7 +49,6 @@ export default function AddUser() {
 
       if (response.ok) {
         setShowAlert({ isOpen: true, title: "User Added Successfully", message: "" });
-        // Clear form fields
         setCasper("");
         setName("");
         setDepartment("");
