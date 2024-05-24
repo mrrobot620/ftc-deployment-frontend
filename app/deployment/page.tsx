@@ -1,7 +1,8 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
+import MultipleSelector, { Option } from "@/components/ui/MultipleSelect";
 import {
   Card,
   CardContent,
@@ -20,14 +21,156 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogDescription
+} from "@/components/ui/alert-dialog";
 
 type Props = {};
 
+interface Station {
+  id: number;
+  station: string;
+  type: string;
+  zone: string;
+}
+
+interface Casper {
+  casper_id: string;
+  id: number;
+  name: string;
+}
+
 export default function UsersPage({}: Props) {
-    
-  const [date, setDate] = React.useState<Date>();
+  const [date, setDate] = useState<Date>();
+  const [zones, setZones] = useState<string[]>([]);
+  const [stations, setStations] = useState<Station[]>([]);
+  const [selectedZone, setSelectedZone] = useState<string>("");
+  const [selectedStation, setSelectedStation] = useState<string>("");
+  const [casperOptions, setCasperOptions] = useState<Option[]>([]);
+  const [caspers, setCaspers] = useState<string[]>([]);
+  const [shift, setShift] = useState("");
+
+  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
+
+
+  useEffect(() => {
+    const fetchZones = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/get_zone");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setZones(data);
+      } catch (error) {
+        console.error("Error fetching zones:", error);
+      }
+    };
+
+    fetchZones();
+  }, []);
+
+  useEffect(() => {
+    const fetchStations = async () => {
+      try {
+        if (!selectedZone) return;
+        const response = await fetch(
+          `http://localhost:8000/get_zonewise_station?zone=${selectedZone}`
+        );
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data = await response.json();
+        setStations(data);
+      } catch (error) {
+        console.error("Error fetching stations:", error);
+      }
+    };
+
+    fetchStations();
+  }, [selectedZone]);
+
+  useEffect(() => {
+    const fetchCaspers = async () => {
+      try {
+        const response = await fetch("http://localhost:8000/get_all_caspers");
+        if (!response.ok) {
+          throw new Error("Network response was not ok");
+        }
+        const data: Casper[] = await response.json();
+        const options = data.map((casper) => ({
+          label: `${casper.name} (${casper.casper_id})`,
+          value: casper.casper_id,
+          id: casper.id,
+          name: casper.name
+        }));
+        setCasperOptions(options);
+      } catch (error) {
+        console.error("Error fetching caspers:", error);
+      }
+    };
+
+    fetchCaspers();
+  }, []);
+
+  const handleZoneChange = (value: string) => {
+    setSelectedZone(value);
+  };
+
+  const handleStationChange = (value: string) => {
+    setSelectedStation(value);
+  };
+
+  const handleShiftChange = (value: string) => {
+    setShift(value);
+  };
+
+  const handleCaspersChange = (selectedOptions: Option[]) => {
+    setCaspers(selectedOptions.map(option => option.value));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+    const formData = {
+      casper_ids: caspers,
+      date: date ? format(date, "yyyy-MM-dd") : "",
+      shift: shift,
+      station_id: selectedStation
+    };
+
+    try {
+      const response = await fetch("http://localhost:8000/add_deployment", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (response.ok) {
+        setShowAlert({ isOpen: true, title: "Deployment Added Sucessfully", message: "" });
+      } else {
+        console.error("Failed to add deployment");
+      }
+    } catch (error) {
+      console.error("Error adding deployment:", error);
+    }
+  };
 
   return (
     <>
@@ -36,13 +179,13 @@ export default function UsersPage({}: Props) {
         <div className="flex flex-col items-center w-full">
           <Card className="w-[500px]">
             <CardHeader>
-              <CardTitle> Deployment </CardTitle>
+              <CardTitle>Deployment</CardTitle>
               <CardDescription>
                 Please Enter the Deployment Details
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <form>
+              <form onSubmit={handleSubmit}>
                 <div className="grid w-full items-center gap-4">
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="datePicker">Select Date</Label>
@@ -56,7 +199,7 @@ export default function UsersPage({}: Props) {
                           )}
                         >
                           <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span></span>}
+                          {date ? format(date, "PPP") : <span>Select Date</span>}
                         </Button>
                       </PopoverTrigger>
                       <PopoverContent className="w-auto p-0">
@@ -68,16 +211,81 @@ export default function UsersPage({}: Props) {
                         />
                       </PopoverContent>
                     </Popover>
-                    <Label htmlFor="casperId">Zone</Label>
-                    <Input id="casperId" />
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="name">Station</Label>
-                    <Input id="name" />
+                    <Label htmlFor="shift">Shift</Label>
+                    <Select onValueChange={handleShiftChange}>
+                      <SelectTrigger id="shift">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        <SelectItem value="Morning">Morning</SelectItem>
+                        <SelectItem value="Evening">Evening</SelectItem>
+                        <SelectItem value="Night">Night</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                   <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="designation">Casper</Label>
-                    <Input id="designation" />
+                    <Label htmlFor="zone">Zone</Label>
+                    <Select
+                      value={selectedZone}
+                      onValueChange={handleZoneChange}
+                    >
+                      <SelectTrigger id="zone">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        {zones.map((zone) => (
+                          <SelectItem key={zone} value={zone}>
+                            {zone}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="station">Station</Label>
+                    <Select
+                      value={selectedStation}
+                      onValueChange={handleStationChange}
+                    >
+                      <SelectTrigger id="station">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent position="popper">
+                        {stations.map((station) => (
+                          <SelectItem
+                            key={station.id}
+                            value={station.id.toString()}
+                          >
+                            {station.station}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="flex flex-col space-y-1.5">
+                    <Label htmlFor="caspers">Casper</Label>
+                    <MultipleSelector
+                      options={casperOptions}
+                      placeholder="Select Caspers"
+                      onChange={handleCaspersChange}
+                      emptyIndicator={
+                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                          Casper ID not found
+                        </p>
+                      }
+                      customFilter={(option, searchText) =>
+                        option.label.toLowerCase().includes(searchText.toLowerCase()) ||
+                        option.value.toLowerCase().includes(searchText.toLowerCase())
+                      }
+                      customRenderOption={(option) => (
+                        <div className="flex justify-between">
+                          <span>{option.label}</span>
+                          <span className="text-gray-500">{option.value}</span>
+                        </div>
+                      )}
+                    />
                   </div>
                 </div>
                 <CardFooter className="flex justify-between pt-8">
@@ -88,6 +296,25 @@ export default function UsersPage({}: Props) {
           </Card>
         </div>
       </div>
+
+      <AlertDialog
+        open={showAlert.isOpen}
+        onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{showAlert.title}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription>{showAlert.message}</AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowAlert({ ...showAlert, isOpen: false })}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+     
     </>
   );
 }
