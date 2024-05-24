@@ -39,6 +39,7 @@ import {
   AlertDialogAction,
   AlertDialogDescription
 } from "@/components/ui/alert-dialog";
+import { captureRejectionSymbol } from "events";
 
 type Props = {};
 
@@ -51,11 +52,12 @@ interface Station {
 
 interface Casper {
   casper_id: string;
-  id: number;
+  id: String;
   name: string;
+  search: string;
 }
 
-export default function UsersPage({}: Props) {
+export default function UsersPage({ }: Props) {
   const [date, setDate] = useState<Date>();
   const [zones, setZones] = useState<string[]>([]);
   const [stations, setStations] = useState<Station[]>([]);
@@ -67,11 +69,10 @@ export default function UsersPage({}: Props) {
 
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
 
-
   useEffect(() => {
     const fetchZones = async () => {
       try {
-        const response = await fetch("http://localhost:8000/get_zone");
+        const response = await fetch("http://10.244.18.160:8000/get_zone");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -90,7 +91,7 @@ export default function UsersPage({}: Props) {
       try {
         if (!selectedZone) return;
         const response = await fetch(
-          `http://localhost:8000/get_zonewise_station?zone=${selectedZone}`
+          `http://10.244.18.160:8000/get_zonewise_station?zone=${selectedZone}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -108,7 +109,7 @@ export default function UsersPage({}: Props) {
   useEffect(() => {
     const fetchCaspers = async () => {
       try {
-        const response = await fetch("http://localhost:8000/get_all_caspers");
+        const response = await fetch("http://10.244.18.160:8000/get_all_caspers");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -119,6 +120,7 @@ export default function UsersPage({}: Props) {
           id: casper.id,
           name: casper.name
         }));
+        console.log(options)
         setCasperOptions(options);
       } catch (error) {
         console.error("Error fetching caspers:", error);
@@ -141,7 +143,7 @@ export default function UsersPage({}: Props) {
   };
 
   const handleCaspersChange = (selectedOptions: Option[]) => {
-    setCaspers(selectedOptions.map(option => option.value));
+    setCaspers(selectedOptions.map(option => option.id));
   };
 
   const handleSubmit = async (event) => {
@@ -154,7 +156,7 @@ export default function UsersPage({}: Props) {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/add_deployment", {
+      const response = await fetch("http://10.244.18.160:8000/add_deployment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -163,6 +165,9 @@ export default function UsersPage({}: Props) {
       });
 
       if (response.ok) {
+          setCaspers([]);
+          console.error("Casper ID Resetted")
+        setSelectedStation("");
         setShowAlert({ isOpen: true, title: "Deployment Added Sucessfully", message: "" });
       } else {
         console.error("Failed to add deployment");
@@ -170,6 +175,8 @@ export default function UsersPage({}: Props) {
     } catch (error) {
       console.error("Error adding deployment:", error);
     }
+
+
   };
 
   return (
@@ -275,10 +282,13 @@ export default function UsersPage({}: Props) {
                           Casper ID not found
                         </p>
                       }
-                      customFilter={(option, searchText) =>
-                        option.label.toLowerCase().includes(searchText.toLowerCase()) ||
-                        option.value.toLowerCase().includes(searchText.toLowerCase())
-                      }
+                      customFilter={(option, searchText) => {
+                        return (
+                          option.value.toLowerCase().includes(searchText.toLowerCase()) ||                           
+                          option.label.toLowerCase().includes(searchText.toLowerCase()) 
+
+                        );
+                      }}
                       customRenderOption={(option) => (
                         <div className="flex justify-between">
                           <span>{option.label}</span>
@@ -289,7 +299,7 @@ export default function UsersPage({}: Props) {
                   </div>
                 </div>
                 <CardFooter className="flex justify-between pt-8">
-                  <Button type="submit">Add</Button>
+                  <Button type="submit">Add Deployment</Button>
                 </CardFooter>
               </form>
             </CardContent>
@@ -313,8 +323,6 @@ export default function UsersPage({}: Props) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-
-     
     </>
   );
 }
