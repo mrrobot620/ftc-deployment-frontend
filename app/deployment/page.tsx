@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 
+
 import {
   AlertDialog,
   AlertDialogContent,
@@ -39,6 +40,8 @@ import {
   AlertDialogAction,
   AlertDialogDescription
 } from "@/components/ui/alert-dialog";
+
+
 import { captureRejectionSymbol } from "events";
 
 type Props = {};
@@ -66,13 +69,16 @@ export default function UsersPage({ }: Props) {
   const [casperOptions, setCasperOptions] = useState<Option[]>([]);
   const [caspers, setCaspers] = useState<string[]>([]);
   const [shift, setShift] = useState("");
+  const [selectorKey, setSelectorKey] = useState(0);
 
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
+
+
 
   useEffect(() => {
     const fetchZones = async () => {
       try {
-        const response = await fetch("http://10.244.18.160:8000/get_zone");
+        const response = await fetch("http://localhost:8000/get_zone");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -91,7 +97,7 @@ export default function UsersPage({ }: Props) {
       try {
         if (!selectedZone) return;
         const response = await fetch(
-          `http://10.244.18.160:8000/get_zonewise_station?zone=${selectedZone}`
+          `http://localhost:8000/get_zonewise_station?zone=${selectedZone}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -109,7 +115,7 @@ export default function UsersPage({ }: Props) {
   useEffect(() => {
     const fetchCaspers = async () => {
       try {
-        const response = await fetch("http://10.244.18.160:8000/get_all_caspers");
+        const response = await fetch("http://localhost:8000/get_all_caspers");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -156,7 +162,7 @@ export default function UsersPage({ }: Props) {
     };
 
     try {
-      const response = await fetch("http://10.244.18.160:8000/add_deployment", {
+      const response = await fetch("http://localhost:8000/add_deployment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -165,11 +171,35 @@ export default function UsersPage({ }: Props) {
       });
 
       if (response.ok) {
-          setCaspers([]);
-          console.error("Casper ID Resetted")
+        const result = await response.json();
+
+        // Constructing the message
+        const deployedNames = result.Deployed.map(casperId => {
+          const casper = casperOptions.find(option => option.id === casperId);
+          return casper ? casper.label : `ID: ${casperId}`;
+        }).join(", ");
+
+        const alreadyDeployedNames = result["Already Deployed"].map(casperId => {
+          const casper = casperOptions.find(option => option.id === casperId);
+          return casper ? casper.label : `ID: ${casperId}`;
+        }).join(", ");
+
+        const message = `
+          ${deployedNames ? `Deployed: ${deployedNames}` : ""}
+          ${alreadyDeployedNames ? `Already Deployed: ${alreadyDeployedNames}` : ""}
+        `;
+
+        setCaspers([]);
+        setSelectorKey(prevKey => prevKey + 1);
         setSelectedStation("");
-        setShowAlert({ isOpen: true, title: "Deployment Added Sucessfully", message: "" });
-      } else {
+        setShowAlert({ isOpen: true, title: "Deployment Added Sucessfully", message: message.trim() });
+      } else if (response.status === 400) { 
+        const data = await response.json()
+        const m = data["Error"]
+        setShowAlert({ isOpen: true, title: "Error in Adding Deployment", message:`Error: ${m}`  });
+
+      } 
+      else { 
         console.error("Failed to add deployment");
       }
     } catch (error) {
@@ -181,7 +211,7 @@ export default function UsersPage({ }: Props) {
 
   return (
     <>
-      <PageTitle title="Add Casper" />
+      <PageTitle title="Deployment Page" />
       <div className="min-h-screen flex flex-col items-center pt-10 gap-5">
         <div className="flex flex-col items-center w-full">
           <Card className="w-[500px]">
@@ -219,6 +249,7 @@ export default function UsersPage({ }: Props) {
                       </PopoverContent>
                     </Popover>
                   </div>
+
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="shift">Shift</Label>
                     <Select onValueChange={handleShiftChange}>
@@ -274,6 +305,7 @@ export default function UsersPage({ }: Props) {
                   <div className="flex flex-col space-y-1.5">
                     <Label htmlFor="caspers">Casper</Label>
                     <MultipleSelector
+                     key={selectorKey}
                       options={casperOptions}
                       placeholder="Select Caspers"
                       onChange={handleCaspersChange}
