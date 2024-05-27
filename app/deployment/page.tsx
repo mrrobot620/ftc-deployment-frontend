@@ -70,7 +70,6 @@ export default function UsersPage({ }: Props) {
   const [caspers, setCaspers] = useState<string[]>([]);
   const [shift, setShift] = useState("");
   const [selectorKey, setSelectorKey] = useState(0);
-
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
 
 
@@ -78,6 +77,7 @@ export default function UsersPage({ }: Props) {
   useEffect(() => {
     const fetchZones = async () => {
       try {
+      
         const response = await fetch("http://localhost:8000/get_zone");
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -154,6 +154,7 @@ export default function UsersPage({ }: Props) {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+
     const formData = {
       casper_ids: caspers,
       date: date ? format(date, "yyyy-MM-dd") : "",

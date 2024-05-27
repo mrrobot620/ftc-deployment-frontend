@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import PageTitle from "@/components/ui/PageTitle";
 import {
   Card,
@@ -22,6 +22,7 @@ import { Calendar as CalendarIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
+import { DeploymentDataTable } from "@/components/ui/deployment-table";
 
 import { Label } from "@/components/ui/label";
 
@@ -33,28 +34,55 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
+
+import {
+  AlertDialog,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogFooter,
+  AlertDialogAction,
+  AlertDialogDescription
+} from "@/components/ui/alert-dialog";
+import { StationDataTable } from "@/components/ui/station-wise-table";
+
 export default function Home() {
   const [date, setDate] = useState<Date>();
-  const [overView , setOverView] = useState<any>({});
-  
+  const [overView, setOverView] = useState<any>({});
+  const [shift, setShift] = useState<string>("");
+  const [apiUrl, setApiUrl] = useState<string>("");
+  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
+  const [stationView , setStationView] = useState<any>({});
 
-  useEffect(() => {
-    const fetchDeployment = async () => {
+
+  const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
+
+  const fetchDeployment = async () => {
+    if (date && shift) {
+      const url = `http://localhost:8000/get_deployment?date=${formattedDate}&shift=${shift}`;
+      setApiUrl(url); // Update apiUrl state
+
       try {
-        const response = await fetch("http://localhost:8000/get_deployment?date=2024-05-31");
+        const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
-
         setOverView(data.overview);
-        console.log(data.overview);
+        setStationView(data.stations_wise)
+        console.log("" , data.stations_wise)
       } catch (error) {
         console.error("Error fetching zones:", error);
+        setShowAlert({ isOpen: true, title: "Deployment Not Found", message: `Deployment Not Found For:  ${shift} Shift ${formattedDate}` });
       }
-    };
-    fetchDeployment();
-  }, []);
+    } else {
+      console.error("Date and shift must be selected");
+    }
+  };
+
+  const handleShiftChange = (value: string) => {
+    setShift(value);
+  };
 
   const primaryCount = overView?.type?.Primary || 0;
   const secondaryCount = overView?.type?.Secondary || 0;
@@ -68,18 +96,6 @@ export default function Home() {
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
-            <div style={{width: "10rem"}}>
-              <Select>
-                <SelectTrigger id="shift">
-                  <SelectValue placeholder="Shift" />
-                </SelectTrigger>
-                <SelectContent position="popper">
-                  <SelectItem value="Morning">Morning</SelectItem>
-                  <SelectItem value="Evening">Evening</SelectItem>
-                  <SelectItem value="Night">Night</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
             <div>
               <Popover>
                 <PopoverTrigger asChild>
@@ -105,37 +121,49 @@ export default function Home() {
                 </PopoverContent>
               </Popover>
             </div>
-            <Button>Get Deployment</Button>
+            <div style={{ width: "10rem" }}>
+              <Select onValueChange={handleShiftChange}>
+                <SelectTrigger id="shift">
+                  <SelectValue placeholder="Shift" />
+                </SelectTrigger>
+                <SelectContent position="popper">
+                  <SelectItem value="Morning">Morning</SelectItem>
+                  <SelectItem value="Evening">Evening</SelectItem>
+                  <SelectItem value="Night">Night</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={fetchDeployment}>Get Deployment</Button>
           </div>
         </div>
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 pt-2">
         <div onClick={() => console.log("Total WF Clicked")}>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total WF</CardTitle>
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              className="h-4 w-4 text-muted-foreground"
-            >
-              <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-            </svg>
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{primaryCount + supCount + secondaryCount + trolleyMovementCount + gridCount}</div>
-            <p className="text-xs text-muted-foreground">
-            </p>
-          </CardContent>
-        </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total WF</CardTitle>
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                className="h-4 w-4 text-muted-foreground"
+              >
+                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+              </svg>
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{primaryCount + supCount + secondaryCount + trolleyMovementCount + gridCount}</div>
+              <p className="text-xs text-muted-foreground">
+              </p>
+            </CardContent>
+          </Card>
         </div>
-       
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Primary</CardTitle>
@@ -247,6 +275,48 @@ export default function Home() {
           </CardContent>
         </Card>
       </div>
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-5">
+        <Card className="col-span-4">
+          <CardHeader>
+            <CardTitle>Data</CardTitle>
+            {shift && formattedDate && (
+        <CardDescription> Date: {formattedDate}  Shift: {shift}</CardDescription>
+      )}
+          </CardHeader>
+          <CardContent className="pl-2">
+            <DeploymentDataTable apiUrl={apiUrl} />
+          </CardContent>
+        </Card>
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Stations</CardTitle>
+            <CardDescription>Station Wise Deployment</CardDescription>
+            <CardDescription>
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+    
+<StationDataTable apiUrl= {apiUrl}></StationDataTable>
+          </CardContent>
+        </Card>
+      </div>
+
+      <AlertDialog
+        open={showAlert.isOpen}
+        onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
+      >
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{showAlert.title}</AlertDialogTitle>
+          </AlertDialogHeader>
+          <AlertDialogDescription>{showAlert.message}</AlertDialogDescription>
+          <AlertDialogFooter>
+            <AlertDialogAction onClick={() => setShowAlert({ ...showAlert, isOpen: false })}>
+              Close
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }
