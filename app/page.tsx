@@ -45,14 +45,18 @@ import {
   AlertDialogDescription
 } from "@/components/ui/alert-dialog";
 import { StationDataTable } from "@/components/ui/station-wise-table";
+import { title } from "process";
+
+import { CardTable } from "@/components/ui/card-table";
 
 export default function Home() {
   const [date, setDate] = useState<Date>();
   const [overView, setOverView] = useState<any>({});
   const [shift, setShift] = useState<string>("");
   const [apiUrl, setApiUrl] = useState<string>("");
-  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
+  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" , content: undefined });
   const [stationView , setStationView] = useState<any>({});
+
 
 
   const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
@@ -73,7 +77,7 @@ export default function Home() {
         console.log("" , data.stations_wise)
       } catch (error) {
         console.error("Error fetching zones:", error);
-        setShowAlert({ isOpen: true, title: "Deployment Not Found", message: `Deployment Not Found For:  ${shift} Shift ${formattedDate}` });
+        setShowAlert({ isOpen: true, title: "Deployment Not Found", message: `Deployment Not Found For:  ${shift} Shift ${formattedDate}` , content:"" });
       }
     } else {
       console.error("Date and shift must be selected");
@@ -82,6 +86,11 @@ export default function Home() {
 
   const handleShiftChange = (value: string) => {
     setShift(value);
+  };
+
+  const handleDeleteSuccess = () => {
+    console.log("Updated Deployment Numbers")
+    fetchDeployment(); 
   };
 
   const primaryCount = overView?.type?.Primary || 0;
@@ -139,7 +148,7 @@ export default function Home() {
       </div>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 pt-2">
-        <div onClick={() => console.log("Total WF Clicked")}>
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type=""></CardTable> })}>
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total WF</CardTitle>
@@ -163,7 +172,7 @@ export default function Home() {
             </CardContent>
           </Card>
         </div>
-
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type="Primary"></CardTable> })}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Primary</CardTitle>
@@ -187,6 +196,7 @@ export default function Home() {
             <p className="text-xs text-muted-foreground"></p>
           </CardContent>
         </Card>
+        </div>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Secondary</CardTitle>
@@ -284,7 +294,7 @@ export default function Home() {
       )}
           </CardHeader>
           <CardContent className="pl-2">
-            <DeploymentDataTable apiUrl={apiUrl} />
+            <DeploymentDataTable apiUrl={apiUrl} onUpdateDeployment={handleDeleteSuccess} />
           </CardContent>
         </Card>
         <Card className="col-span-3">
@@ -305,11 +315,12 @@ export default function Home() {
         open={showAlert.isOpen}
         onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
       >
-        <AlertDialogContent>
+        <AlertDialogContent style={{ width: '800px', maxWidth: '90%' }}>
           <AlertDialogHeader>
             <AlertDialogTitle>{showAlert.title}</AlertDialogTitle>
           </AlertDialogHeader>
           <AlertDialogDescription>{showAlert.message}</AlertDialogDescription>
+          {showAlert.content}
           <AlertDialogFooter>
             <AlertDialogAction onClick={() => setShowAlert({ ...showAlert, isOpen: false })}>
               Close

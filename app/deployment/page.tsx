@@ -126,7 +126,6 @@ export default function UsersPage({ }: Props) {
           id: casper.id,
           name: casper.name
         }));
-        console.log(options)
         setCasperOptions(options);
       } catch (error) {
         console.error("Error fetching caspers:", error);
@@ -212,133 +211,130 @@ export default function UsersPage({ }: Props) {
 
   return (
     <>
-      <PageTitle title="Deployment Page" />
-      <div className="min-h-screen flex flex-col items-center pt-10 gap-5">
-        <div className="flex flex-col items-center w-full">
-          <Card className="w-[500px]">
-            <CardHeader>
-              <CardTitle>Deployment</CardTitle>
-              <CardDescription>
-                Please Enter the Deployment Details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <form onSubmit={handleSubmit}>
-                <div className="grid w-full items-center gap-4">
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="datePicker">Select Date</Label>
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button
-                          variant={"outline"}
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !date && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 h-4 w-4" />
-                          {date ? format(date, "PPP") : <span>Select Date</span>}
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-auto p-0">
-                        <Calendar
-                          mode="single"
-                          selected={date}
-                          onSelect={setDate}
-                          initialFocus
-                        />
-                      </PopoverContent>
-                    </Popover>
-                  </div>
-
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="shift">Shift</Label>
-                    <Select onValueChange={handleShiftChange}>
-                      <SelectTrigger id="shift">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        <SelectItem value="Morning">Morning</SelectItem>
-                        <SelectItem value="Evening">Evening</SelectItem>
-                        <SelectItem value="Night">Night</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="zone">Zone</Label>
-                    <Select
-                      value={selectedZone}
-                      onValueChange={handleZoneChange}
-                    >
-                      <SelectTrigger id="zone">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        {zones.map((zone) => (
-                          <SelectItem key={zone} value={zone}>
-                            {zone}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="station">Station</Label>
-                    <Select
-                      value={selectedStation}
-                      onValueChange={handleStationChange}
-                    >
-                      <SelectTrigger id="station">
-                        <SelectValue placeholder="Select" />
-                      </SelectTrigger>
-                      <SelectContent position="popper">
-                        {stations.map((station) => (
-                          <SelectItem
-                            key={station.id}
-                            value={station.id.toString()}
-                          >
-                            {station.station}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <div className="flex flex-col space-y-1.5">
-                    <Label htmlFor="caspers">Casper</Label>
-                    <MultipleSelector
-                     key={selectorKey}
-                      options={casperOptions}
-                      placeholder="Select Caspers"
-                      onChange={handleCaspersChange}
-                      emptyIndicator={
-                        <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
-                          Casper ID not found
-                        </p>
-                      }
-                      customFilter={(option, searchText) => {
-                        return (
-                          option.value.toLowerCase().includes(searchText.toLowerCase()) ||                           
-                          option.label.toLowerCase().includes(searchText.toLowerCase()) 
-
-                        );
-                      }}
-                      customRenderOption={(option) => (
-                        <div className="flex justify-between">
-                          <span>{option.label}</span>
-                          <span className="text-gray-500">{option.value}</span>
-                        </div>
+       <PageTitle title="Deployment Page" />
+  <div className="min-h-screen flex flex-col items-center pt-10 gap-5">
+    <div className="flex flex-col items-center w-full px-4 sm:px-6 lg:px-8">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle>Deployment</CardTitle>
+          <CardDescription>Please Enter the Deployment Details</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <div className="grid w-full items-center gap-4">
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="datePicker">Select Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant={"outline"}
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !date && "text-muted-foreground"
                       )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {date ? format(date, "PPP") : <span>Select Date</span>}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0">
+                    <Calendar
+                      mode="single"
+                      selected={date}
+                      onSelect={setDate}
+                      initialFocus
                     />
-                  </div>
-                </div>
-                <CardFooter className="flex justify-between pt-8">
-                  <Button type="submit">Add Deployment</Button>
-                </CardFooter>
-              </form>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="shift">Shift</Label>
+                <Select onValueChange={handleShiftChange}>
+                  <SelectTrigger id="shift">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    <SelectItem value="Morning">Morning</SelectItem>
+                    <SelectItem value="Evening">Evening</SelectItem>
+                    <SelectItem value="Night">Night</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="zone">Zone</Label>
+                <Select
+                  value={selectedZone}
+                  onValueChange={handleZoneChange}
+                >
+                  <SelectTrigger id="zone">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {zones.map((zone) => (
+                      <SelectItem key={zone} value={zone}>
+                        {zone}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="station">Station</Label>
+                <Select
+                  value={selectedStation}
+                  onValueChange={handleStationChange}
+                >
+                  <SelectTrigger id="station">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                  <SelectContent position="popper">
+                    {stations.map((station) => (
+                      <SelectItem
+                        key={station.id}
+                        value={station.id.toString()}
+                      >
+                        {station.station}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="flex flex-col space-y-1.5">
+                <Label htmlFor="caspers">Casper</Label>
+                <MultipleSelector
+                  key={selectorKey}
+                  options={casperOptions}
+                  placeholder="Select Caspers"
+                  onChange={handleCaspersChange}
+                  emptyIndicator={
+                    <p className="text-center text-lg leading-10 text-gray-600 dark:text-gray-400">
+                      Casper ID not found
+                    </p>
+                  }
+                  customFilter={(option, searchText) => {
+                    return (
+                      option.value.toLowerCase().includes(searchText.toLowerCase()) ||                           
+                      option.label.toLowerCase().includes(searchText.toLowerCase()) 
+                    );
+                  }}
+                  customRenderOption={(option) => (
+                    <div className="flex justify-between">
+                      <span>{option.label}</span>
+                      <span className="text-gray-500">{option.value}</span>
+                    </div>
+                  )}
+                />
+              </div>
+            </div>
+            <CardFooter className="flex justify-between pt-8">
+              <Button type="submit">Add Deployment</Button>
+            </CardFooter>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  </div>
 
       <AlertDialog
         open={showAlert.isOpen}

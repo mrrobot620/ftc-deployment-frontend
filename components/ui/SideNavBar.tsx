@@ -11,9 +11,21 @@ import {
   } from "lucide-react"
 import { Input } from "postcss";
 import { Button } from "../ui/button";
+
+
+import {
+  useWindowSize,
+  useWindowWidth,
+  useWindowHeight,
+} from '@react-hook/window-size'
+
+
   
 export default function SideNavBar({} : Props) {
   const [isCollapsed , setIsCollapsed] = useState(true);
+
+  const onlyWitdh = useWindowWidth();
+  const mobileWidth = onlyWitdh < 768;
 
   function toggleSidebar(){
     setIsCollapsed(!isCollapsed)
@@ -25,8 +37,9 @@ export default function SideNavBar({} : Props) {
             <ChevronRight></ChevronRight>
           </Button>
           </div>
+    
              <Nav
-            isCollapsed={isCollapsed}
+            isCollapsed={mobileWidth ? true : isCollapsed}
             links={[
               { 
                 title: "Dashboard",

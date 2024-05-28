@@ -47,10 +47,10 @@ export type Deployment = {
 
 type DeploymentDataTableProps = {
   apiUrl: string;
-  onUpdateDeployment: () => void;
+  type: string;
 };
 
-export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentDataTableProps) {
+export function CardTable ({ apiUrl , type }: DeploymentDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [data, setData] = useState<Deployment[]>([]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
@@ -65,7 +65,8 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
       }
       const result = await response.json();
 
-      const transformedData = result.data.map((item: any) => ({
+      const transformedData = result.data
+      .map((item: any) => ({
         id: item.id.toString(),
         casper: item.casper.casper_id,
         department: item.casper.department,
@@ -73,8 +74,13 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
         name: item.casper.name,
         type: item.station.type,
         station: item.station.station,
-      }));
+      }))
+      .filter((item: Deployment) => type === "" || item.type === type);
 
+    setData(transformedData);
+    console.log(transformedData);
+
+      
       setData(transformedData);
       console.log(transformedData);
     } catch (error) {
@@ -86,72 +92,11 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
     fetchDeployment();
   }, [apiUrl]);
 
-  const deleteDeployment = async (id: string) => {
-    try {
-      const response = await fetch(`http://localhost:8000/delete_deployment?deployment_id=${id}`, {
-        method: "POST",
-      });
 
-      if (!response.ok) {
-        console.error("Error Deleting Deployment");
-      }
 
-      const data = await response.json();
-      console.log(data);
-      fetchDeployment(); 
-      onUpdateDeployment();
-    } catch (error) {
-      console.error("Failed to delete deployment:", error);
-    }
-  };
 
-  const convertToCSV = () => {
-    const headers = Object.keys(data[0]);
-    const headerCSV = headers.map((header) => JSON.stringify(header)).join(",");
-    const dataCSV = data.map((row) =>
-      headers.map((header) => JSON.stringify(row[header])).join(",")
-    );
-    return [headerCSV, ...dataCSV].join("\n");
-  };
-
-  const downloadCSV = () => {
-    const csv = convertToCSV();
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const link = document.createElement("a");
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute("href", url);
-      link.setAttribute("download", "deployment.csv");
-      link.style.visibility = "hidden";
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-    }
-  };
 
   const columns: ColumnDef<Deployment>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "casper",
       header: "Casper",
@@ -192,32 +137,6 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
       header: () => <div className="text-right">Station</div>,
       cell: ({ row }) => <div className="text-right">{row.getValue("station")}</div>,
     },
-    {
-      id: "actions",
-      enableHiding: false,
-      cell: ({ row }) => {
-        const deployment = row.original;
-
-        return (
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="h-8 w-8 p-0">
-                <span className="sr-only">Open menu</span>
-                <MoreHorizontal className="h-4 w-4" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem onClick={() => deleteDeployment(deployment.id)}>
-                Delete
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem>View details</DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        );
-      },
-    },
   ];
 
   const table = useReactTable({
@@ -255,35 +174,6 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
           }
           className="max-w-sm"
         />
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button variant="outline" className="ml-auto">
-              Columns <ChevronDown className="ml-2 h-4 w-4" />
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end">
-            {table
-              .getAllColumns()
-              .filter((column) => column.getCanHide())
-              .map((column) => {
-                return (
-                  <DropdownMenuCheckboxItem
-                    key={column.id}
-                    className="capitalize"
-                    checked={column.getIsVisible()}
-                    onCheckedChange={(value) =>
-                      column.toggleVisibility(!!value)
-                    }
-                  >
-                    {column.id}
-                  </DropdownMenuCheckboxItem>
-                );
-              })}
-          </DropdownMenuContent>
-        </DropdownMenu>
-        <Button variant={"outline"} onClick={downloadCSV}>
-          Download
-        </Button>
       </div>
       <div className="rounded-md border">
         <Table>
