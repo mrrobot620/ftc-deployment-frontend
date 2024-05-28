@@ -39,7 +39,7 @@ export default function AddUser() {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/add_casper", {
+      const response = await fetch("http://10.244.18.160:8000/add_casper", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

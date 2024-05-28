@@ -88,7 +88,7 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
 
   const deleteDeployment = async (id: string) => {
     try {
-      const response = await fetch(`http://localhost:8000/delete_deployment?deployment_id=${id}`, {
+      const response = await fetch(`http://10.244.18.160:8000/delete_deployment?deployment_id=${id}`, {
         method: "POST",
       });
 

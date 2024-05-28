@@ -63,7 +63,7 @@ export default function Home() {
 
   const fetchDeployment = async () => {
     if (date && shift) {
-      const url = `http://localhost:8000/get_deployment?date=${formattedDate}&shift=${shift}`;
+      const url = `http://10.244.18.160:8000/get_deployment?date=${formattedDate}&shift=${shift}`;
       setApiUrl(url); // Update apiUrl state
 
       try {
@@ -197,6 +197,7 @@ export default function Home() {
           </CardContent>
         </Card>
         </div>
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type="Secondary"></CardTable> })}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Secondary</CardTitle>
@@ -219,6 +220,8 @@ export default function Home() {
             <p className="text-xs text-muted-foreground"></p>
           </CardContent>
         </Card>
+        </div>
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type="Grid"></CardTable> })}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Grid</CardTitle>
@@ -240,6 +243,9 @@ export default function Home() {
             <p className="text-xs text-muted-foreground"></p>
           </CardContent>
         </Card>
+        </div>
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type="tm"></CardTable> })}>
+
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">
@@ -263,6 +269,8 @@ export default function Home() {
             <p className="text-xs text-muted-foreground"></p>
           </CardContent>
         </Card>
+        </div>
+        <div onClick={() => setShowAlert({isOpen: true , title: "Total WF" , message: "" , content: <CardTable apiUrl={apiUrl} type="sup"></CardTable> })}>
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">SUP/SME</CardTitle>
@@ -284,6 +292,7 @@ export default function Home() {
             <p className="text-xs text-muted-foreground"></p>
           </CardContent>
         </Card>
+        </div>
       </div>
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-5">
         <Card className="col-span-4">

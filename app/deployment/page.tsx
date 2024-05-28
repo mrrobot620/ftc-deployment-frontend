@@ -78,7 +78,7 @@ export default function UsersPage({ }: Props) {
     const fetchZones = async () => {
       try {
       
-        const response = await fetch("http://localhost:8000/get_zone");
+        const response = await fetch("http://10.244.18.160:8000/get_zone");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -97,7 +97,7 @@ export default function UsersPage({ }: Props) {
       try {
         if (!selectedZone) return;
         const response = await fetch(
-          `http://localhost:8000/get_zonewise_station?zone=${selectedZone}`
+          `http://10.244.18.160:8000/get_zonewise_station?zone=${selectedZone}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -115,7 +115,7 @@ export default function UsersPage({ }: Props) {
   useEffect(() => {
     const fetchCaspers = async () => {
       try {
-        const response = await fetch("http://localhost:8000/get_all_caspers");
+        const response = await fetch("http://10.244.18.160:8000/get_all_caspers");
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -162,7 +162,7 @@ export default function UsersPage({ }: Props) {
     };
 
     try {
-      const response = await fetch("http://localhost:8000/add_deployment", {
+      const response = await fetch("http://10.244.18.160:8000/add_deployment", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

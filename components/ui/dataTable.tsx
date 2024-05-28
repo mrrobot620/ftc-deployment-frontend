@@ -97,7 +97,7 @@ export const columns: ColumnDef<Casper>[] = [
       const [stationType , setStationType] = useState<String>("");
       const fetchCardDetails = (id: number) => {
         axios
-          .get(`http://localhost:8000/get_current_deployment?casper=${id}`)
+          .get(`http://10.244.18.160:8000/get_current_deployment?casper=${id}`)
           .then((response) => {
             const data = response.data;
             const station = data.station?.station;
@@ -196,7 +196,7 @@ export function DataTableDemo() {
   useEffect(() => {
     // Fetch data from Flask API\
     axios
-      .get("http://localhost:8000/get_all_caspers")
+      .get("http://10.244.18.160:8000/get_all_caspers")
       .then((response) => {
         setData(response.data);
       })
