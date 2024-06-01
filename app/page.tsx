@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState , ReactNode } from "react";
 import PageTitle from "@/components/ui/PageTitle";
 import {
   Card,
@@ -8,6 +8,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
+import { ModeToggle } from "@/components/ui/theme-button";
+
 
 import {
   Popover,
@@ -24,7 +27,6 @@ import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import { DeploymentDataTable } from "@/components/ui/deployment-table";
 
-import { Label } from "@/components/ui/label";
 
 import {
   Select,
@@ -54,8 +56,11 @@ export default function Home() {
   const [overView, setOverView] = useState<any>({});
   const [shift, setShift] = useState<string>("");
   const [apiUrl, setApiUrl] = useState<string>("");
-  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" , content: undefined });
+  const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" , content: undefined as ReactNode });
   const [stationView , setStationView] = useState<any>({});
+
+  const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 
 
 
@@ -63,7 +68,7 @@ export default function Home() {
 
   const fetchDeployment = async () => {
     if (date && shift) {
-      const url = `http://10.244.18.160:8000/get_deployment?date=${formattedDate}&shift=${shift}`;
+      const url = `${API_URL}/get_deployment?date=${formattedDate}&shift=${shift}`;
       setApiUrl(url); // Update apiUrl state
 
       try {
@@ -101,11 +106,14 @@ export default function Home() {
 
   return (
     <>
+
       <div className="flex-1 space-y-4 p-6 pt-1">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight">Dashboard</h2>
           <div className="flex items-center space-x-2">
+          <ModeToggle></ModeToggle>
             <div>
+          
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
@@ -322,7 +330,6 @@ export default function Home() {
 
       <AlertDialog
         open={showAlert.isOpen}
-        onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
       >
         <AlertDialogContent style={{ width: '800px', maxWidth: '90%' }}>
           <AlertDialogHeader>

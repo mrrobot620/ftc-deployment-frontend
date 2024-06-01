@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useCallback } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -15,16 +15,7 @@ import {
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -57,7 +48,7 @@ export function CardTable ({ apiUrl , type }: DeploymentDataTableProps) {
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
 
-  const fetchDeployment = async () => {
+  const fetchDeployment = useCallback( async () => {
     try {
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -86,13 +77,11 @@ export function CardTable ({ apiUrl , type }: DeploymentDataTableProps) {
     } catch (error) {
       console.error("Error fetching deployment data:", error);
     }
-  };
+  }, [apiUrl , type]);
 
   useEffect(() => {
     fetchDeployment();
-  }, [apiUrl]);
-
-
+  }, [fetchDeployment]);
 
 
 

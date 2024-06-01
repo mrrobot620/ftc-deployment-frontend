@@ -1,6 +1,12 @@
 // DataTableDemo.tsx
 "use client";
 import React, { useEffect, useState, useMemo } from "react";
+import { ImageLoaderProps } from 'next/image';
+
+import Image from 'next/image'; 
+
+import  Cell  from "@/components/ui/details-card";
+
 import axios from "axios";
 import {
   ColumnDef,
@@ -51,19 +57,62 @@ export type Casper = {
   department: string;
 };
 
-export const columns: ColumnDef<Casper>[] = [
+export function DataTableDemo() {
+  const [data, setData] = useState<Casper[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>("");
+  const [sorting, setSorting] = useState([]);
+  const [columnFilters, setColumnFilters] = useState([]);
+  const [columnVisibility, setColumnVisibility] = useState({});
+  const [rowSelection, setRowSelection] = useState({});
+  const [showAlert, setShowAlert] = useState({
+    isOpen: false,
+    title: "",
+    message: "",
+  });
+
+  const [currentDeployment , setCurrentDeployment] = useState<String>("");
+  const [currentZone , setCurrentZone] = useState<String>("");
+  const [stationType , setStationType] = useState<String>("");
+
+  type ImageLoader = (p: ImageLoaderProps) => string;
+
+
+  const customLoader: ImageLoader = ({ src, width, quality }) => {
+    return `https://api.dicebear.com/8.x/lorelei/svg?seed=${src}&w=${width}&q=${quality || 100}`;
+  };
+
+  useEffect(() => {
+    // Fetch data from Flask API\
+
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
+    axios
+      .get(`${API_URL}/get_all_caspers`)
+      .then((response) => {
+        setData(response.data);
+      })
+      .catch((error) => {
+        console.error("There was an error fetching the data!", error);
+      });
+  }, []);
+
+
+
+ const columns: ColumnDef<Casper>[] = [
+
+
   {
     accessorKey: "name",
     header: "Name",
     cell: ({ row }) => {
       return (
         <div className="flex gap-2 items-center">
-          <img
+          <Image
             className="h-10 w-10"
-            src={`https://api.dicebear.com/8.x/lorelei/svg?seed=${row.getValue(
-              "name"
-            )}`}
+            src={row.getValue("name")}
+            loader={customLoader}
             alt="user image"
+            width={100}
+            height={100}
           />
           <p>{row.getValue("name")}</p>
         </div>
@@ -85,125 +134,9 @@ export const columns: ColumnDef<Casper>[] = [
   {
     accessorKey: "button",
     header: "Details",
-    cell: ({ row }) => {
-      const [showAlert, setShowAlert] = useState({
-        isOpen: false,
-        title: "",
-        message: "",
-      });
-
-      const [currentDeployment , setCurrentDeployment] = useState<String>("");
-      const [currentZone , setCurrentZone] = useState<String>("");
-      const [stationType , setStationType] = useState<String>("");
-      const fetchCardDetails = (id: number) => {
-        axios
-          .get(`http://10.244.18.160:8000/get_current_deployment?casper=${id}`)
-          .then((response) => {
-            const data = response.data;
-            const station = data.station?.station;
-            const zone = data.station?.zone;
-            const type = data.station?.type;
-            if (station) {
-              setCurrentDeployment(station);
-              setCurrentZone(zone)
-              setStationType(type);
-            } else {
-              setCurrentDeployment("Deployment Not Found");
-
-            }
-          })
-          .catch((error) => {
-            console.error("Error fetching card details:", error);
-            setCurrentDeployment("NA");
-            setCurrentZone("NA")
-            setStationType("NA")
-          });
-      };
-
-      
-      return (
-        <div className="flex gap-2 items-center">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              fetchCardDetails(row.original.id);
-              setShowAlert({
-                isOpen: true,
-                title: "Details",
-                message: "Hi I am Here",
-              });
-            }}
-          >
-           
-            Get
-          </Button>
-          <AlertDialog
-            open={showAlert.isOpen}
-            onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
-          >
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>{showAlert.title}</AlertDialogTitle>
-              </AlertDialogHeader>
-            <figure className="rounded-xl p-8 ">
-  <img className="w-24 h-24 rounded-full mx-auto" src={`https://api.dicebear.com/8.x/lorelei/svg?seed=${row.getValue(
-              "name"
-            )}`} alt="" width="384" height="512"/>
-  <div className="pt-6 space-y-4">
-    <blockquote>
-      <p className="text-lg font-medium">
-      Name: {row.original.name}<br>
-              </br>
-                 Current Deployment: {currentDeployment}<br>
-                </br>
-                Current Zone: {currentZone}<br>
-              </br>
-              Station Type: {stationType}
-      </p>
-    </blockquote>
-  </div>
-</figure>
-          
-              <AlertDialogFooter>
-                <AlertDialogAction
-                  onClick={() => setShowAlert({ ...showAlert, isOpen: false })}
-                >
-                  Close
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
-      );
-    },
-  },
-];
-
-export function DataTableDemo() {
-  const [data, setData] = useState<Casper[]>([]);
-  const [searchQuery, setSearchQuery] = useState<string>("");
-  const [sorting, setSorting] = useState([]);
-  const [columnFilters, setColumnFilters] = useState([]);
-  const [columnVisibility, setColumnVisibility] = useState({});
-  const [rowSelection, setRowSelection] = useState({});
-  const [showAlert, setShowAlert] = useState({
-    isOpen: false,
-    title: "",
-    message: "",
-  });
-
-  useEffect(() => {
-    // Fetch data from Flask API\
-    axios
-      .get("http://10.244.18.160:8000/get_all_caspers")
-      .then((response) => {
-        setData(response.data);
-      })
-      .catch((error) => {
-        console.error("There was an error fetching the data!", error);
-      });
-  }, []);
+    cell: ({ row }) => <Cell row={row} />,
+  }
+]
 
   const filteredData = useMemo(() => {
     if (!searchQuery) return data;

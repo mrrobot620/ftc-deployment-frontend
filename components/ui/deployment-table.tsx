@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useCallback} from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -56,8 +56,8 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const fetchDeployment = async () => {
+  
+  const fetchDeployment = useCallback(async () => {
     try {
       const response = await fetch(apiUrl);
       if (!response.ok) {
@@ -80,15 +80,16 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
     } catch (error) {
       console.error("Error fetching deployment data:", error);
     }
-  };
+  }, [apiUrl]);
 
   useEffect(() => {
     fetchDeployment();
-  }, [apiUrl]);
+  }, [fetchDeployment]);
 
   const deleteDeployment = async (id: string) => {
+    const API_URL = process.env.NEXT_PUBLIC_API_URL;
     try {
-      const response = await fetch(`http://10.244.18.160:8000/delete_deployment?deployment_id=${id}`, {
+      const response = await fetch(`${API_URL}/delete_deployment?deployment_id=${id}`, {
         method: "POST",
       });
 
@@ -109,7 +110,7 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
     const headers = Object.keys(data[0]);
     const headerCSV = headers.map((header) => JSON.stringify(header)).join(",");
     const dataCSV = data.map((row) =>
-      headers.map((header) => JSON.stringify(row[header])).join(",")
+      headers.map((header) => JSON.stringify((row as any)[header])).join(",")
     );
     return [headerCSV, ...dataCSV].join("\n");
   };

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect ,FormEvent } from "react";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
 import MultipleSelector, { Option } from "@/components/ui/MultipleSelect";
@@ -55,7 +55,7 @@ interface Station {
 
 interface Casper {
   casper_id: string;
-  id: String;
+  id: string;
   name: string;
   search: string;
 }
@@ -77,8 +77,8 @@ export default function UsersPage({ }: Props) {
   useEffect(() => {
     const fetchZones = async () => {
       try {
-      
-        const response = await fetch("http://10.244.18.160:8000/get_zone");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${API_URL}/get_zone`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -96,8 +96,9 @@ export default function UsersPage({ }: Props) {
     const fetchStations = async () => {
       try {
         if (!selectedZone) return;
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
         const response = await fetch(
-          `http://10.244.18.160:8000/get_zonewise_station?zone=${selectedZone}`
+          `${API_URL}/get_zonewise_station?zone=${selectedZone}`
         );
         if (!response.ok) {
           throw new Error("Network response was not ok");
@@ -115,7 +116,8 @@ export default function UsersPage({ }: Props) {
   useEffect(() => {
     const fetchCaspers = async () => {
       try {
-        const response = await fetch("http://10.244.18.160:8000/get_all_caspers");
+        const API_URL = process.env.NEXT_PUBLIC_API_URL;
+        const response = await fetch(`${API_URL}/get_all_caspers`);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
@@ -148,10 +150,10 @@ export default function UsersPage({ }: Props) {
   };
 
   const handleCaspersChange = (selectedOptions: Option[]) => {
-    setCaspers(selectedOptions.map(option => option.id));
+    setCaspers(selectedOptions.map(option => String(option.id)));
   };
 
-  const handleSubmit = async (event) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     const formData = {
@@ -162,7 +164,8 @@ export default function UsersPage({ }: Props) {
     };
 
     try {
-      const response = await fetch("http://10.244.18.160:8000/add_deployment", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+      const response = await fetch(`${API_URL}/add_deployment`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -174,12 +177,12 @@ export default function UsersPage({ }: Props) {
         const result = await response.json();
 
         // Constructing the message
-        const deployedNames = result.Deployed.map(casperId => {
+        const deployedNames = result.Deployed.map((casperId: string )=> {
           const casper = casperOptions.find(option => option.id === casperId);
           return casper ? casper.label : `ID: ${casperId}`;
         }).join(", ");
 
-        const alreadyDeployedNames = result["Already Deployed"].map(casperId => {
+        const alreadyDeployedNames = result["Already Deployed"].map((casperId: string )=> {
           const casper = casperOptions.find(option => option.id === casperId);
           return casper ? casper.label : `ID: ${casperId}`;
         }).join(", ");
@@ -312,18 +315,6 @@ export default function UsersPage({ }: Props) {
                       Casper ID not found
                     </p>
                   }
-                  customFilter={(option, searchText) => {
-                    return (
-                      option.value.toLowerCase().includes(searchText.toLowerCase()) ||                           
-                      option.label.toLowerCase().includes(searchText.toLowerCase()) 
-                    );
-                  }}
-                  customRenderOption={(option) => (
-                    <div className="flex justify-between">
-                      <span>{option.label}</span>
-                      <span className="text-gray-500">{option.value}</span>
-                    </div>
-                  )}
                 />
               </div>
             </div>
@@ -338,7 +329,6 @@ export default function UsersPage({ }: Props) {
 
       <AlertDialog
         open={showAlert.isOpen}
-        onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
       >
         <AlertDialogContent>
           <AlertDialogHeader>

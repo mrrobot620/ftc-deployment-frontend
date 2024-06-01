@@ -110,7 +110,7 @@ export function StationDataTable({ apiUrl }: DeploymentDataTableProps) {
         const transformedData = Object.entries(result.stations_wise.type).map(
           ([station, wf]) => ({
             station,
-            wf,
+            wf: Number(wf),
           })
         );
 

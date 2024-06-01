@@ -22,6 +22,8 @@ import {
   AlertDialogDescription
 } from "@/components/ui/alert-dialog";
 
+
+
 export default function AddUser() {
   const [casper, setCasper] = useState("");
   const [name, setName] = useState("");
@@ -29,7 +31,8 @@ export default function AddUser() {
   const [designation, setDesignation] = useState("");
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
 
-  const handleSubmit = async (event) => {
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     const formData = {
       casper: casper,
@@ -39,7 +42,9 @@ export default function AddUser() {
     };
 
     try {
-      const response = await fetch("http://10.244.18.160:8000/add_casper", {
+      const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+      const response = await fetch(`${API_URL}/add_casper`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -104,7 +109,6 @@ export default function AddUser() {
       {/* Alert Dialog */}
       <AlertDialog
         open={showAlert.isOpen}
-        onDismiss={() => setShowAlert({ ...showAlert, isOpen: false })}
       >
         <AlertDialogContent>
           <AlertDialogHeader>
