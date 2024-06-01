@@ -1,5 +1,8 @@
+"use client";
+
 import Link from "next/link";
 import { LucideIcon } from "lucide-react";
+
 import { cn } from "@/lib/utils";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -10,7 +13,7 @@ import {
 import { TooltipProvider } from "@radix-ui/react-tooltip";
 import { usePathname } from "next/navigation";
 
-import { SheetClose } from "@/components/ui/sheet";
+import { SheetClose } from "@/components/ui/sheet"
 
 interface NavProps {
   isCollapsed: boolean;
@@ -29,28 +32,28 @@ export function Nav({ links, isCollapsed }: NavProps) {
     <TooltipProvider>
       <div
         data-collapsed={isCollapsed}
-        className="group flex flex-col gap-10 py-6 data-[collapsed=true]:py-2"
+        className="group flex flex-col gap-10 py-6 data-[collapsed=true]:py-6"
       >
         <nav className="grid gap-1 px-2 group-[[data-collapsed=true]]:justify-center pr-6 group-[[data-collapsed=true]]:px-2">
-          {links.map((link) =>
+          {links.map((link, index) =>
             isCollapsed ? (
               <Tooltip key={link.href} delayDuration={0}>
                 <TooltipTrigger asChild>
-                  <Link
-                    href={link.href}
-                    className={cn(
-                      buttonVariants({
-                        variant: link.href === pathname ? "default" : "ghost",
-                        size: "icon",
-                      }),
-                      "h-9 w-9",
-                      link.variant === "default" &&
-                        "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
-                    )}
-                  >
-                    <link.icon className="h-4 w-4" />
-                    <span className="sr-only">{link.title}</span>
-                  </Link>
+                    <Link
+                      href={link.href}
+                      className={cn(
+                        buttonVariants({
+                          variant: link.href === pathname ? "default" : "ghost",
+                          size: "icon",
+                        }),
+                        "h-9 w-9",
+                        link.variant === "default" &&
+                          "dark:bg-muted dark:text-muted-foreground dark:hover:bg-muted dark:hover:text-white"
+                      )}
+                    >
+                      <link.icon className="h-4 w-4" />
+                      <span className="sr-only">{link.title}</span>
+                    </Link>
                 </TooltipTrigger>
                 <TooltipContent side="right" className="flex items-center gap-4">
                   {link.title}
@@ -62,33 +65,33 @@ export function Nav({ links, isCollapsed }: NavProps) {
                 </TooltipContent>
               </Tooltip>
             ) : (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={cn(
-                  buttonVariants({
-                    variant: link.href === pathname ? "default" : "ghost",
-                    size: "sm",
-                  }),
-                  link.variant === "default" &&
-                    "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
-                  "justify-start"
-                )}
-              >
-                <link.icon className="mr-2 h-4 w-4" />
-                {link.title}
-                {link.label && (
-                  <span
-                    className={cn(
-                      "ml-auto",
-                      link.variant === "default" &&
-                        "text-background dark:text-white"
-                    )}
-                  >
-                    {link.label}
-                  </span>
-                )}
-              </Link>
+                <Link
+                  href={link.href}
+                  key = {link.href}
+                  className={cn(
+                    buttonVariants({
+                      variant: link.href === pathname ? "default" : "ghost",
+                      size: "sm",
+                    }),
+                    link.variant === "default" &&
+                      "dark:bg-muted dark:text-white dark:hover:bg-muted dark:hover:text-white",
+                    "justify-start"
+                  )}
+                >
+                  <link.icon className="mr-2 h-4 w-4" />
+                  {link.title}
+                  {link.label && (
+                    <span
+                      className={cn(
+                        "ml-auto",
+                        link.variant === "default" &&
+                          "text-background dark:text-white"
+                      )}
+                    >
+                      {link.label}
+                    </span>
+                  )}
+                </Link>
             )
           )}
         </nav>
