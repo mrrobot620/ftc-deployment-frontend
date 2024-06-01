@@ -7,16 +7,25 @@
 [https://deployment-manager.vercel.app/](https://deployment-manager.vercel.app/)
 
   
-<h2>💻 Built with</h2>
+## 💻 Built with
 
 Technologies used in the project:
 
-* ![TypeScript](https://img.shields.io/badge/-TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
-* ![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=white)
-* ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat&logo=flask&logoColor=white)
-* ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white)
-* ![Shadcn UI](https://img.shields.io/badge/-Shadcn%20UI-0A0A0A?style=flat&logo=shadcn&logoColor=white)
+* TypeScript
+* React
+* Flask
+* Python
+* Shadcn UI
 
+
+<p align="left">
+  <img src="https://raw.githubusercontent.com/github/explore/main/topics/typescript/typescript.png" alt="TypeScript" height="40px"/>
+  <img src="https://raw.githubusercontent.com/github/explore/main/topics/react/react.png" alt="React" height="40px"/>
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSeDJSaZ_KS_yCrn77Gc9PUC2VRehAqRBZ27g&s" alt="Flask" height="40px"/>
+  <img src="https://raw.githubusercontent.com/github/explore/main/topics/python/python.png" alt="Python" height="40px"/>
+  <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQAjouFTAB2PcXfnfkjy1SUjkaMeaymXnzoOA&sg" alt="Shadcn UI" height="40px"/>
+  
+</p>
 <h2>Project Screenshots:</h2>
 
 <img src="https://private-user-images.githubusercontent.com/89240367/335797767-809e529a-4bdc-42e4-a758-8ba0f6eef242.png?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3MTcyNDE5MTcsIm5iZiI6MTcxNzI0MTYxNywicGF0aCI6Ii84OTI0MDM2Ny8zMzU3OTc3NjctODA5ZTUyOWEtNGJkYy00MmU0LWE3NTgtOGJhMGY2ZWVmMjQyLnBuZz9YLUFtei1BbGdvcml0aG09QVdTNC1ITUFDLVNIQTI1NiZYLUFtei1DcmVkZW50aWFsPUFLSUFWQ09EWUxTQTUzUFFLNFpBJTJGMjAyNDA2MDElMkZ1cy1lYXN0LTElMkZzMyUyRmF3czRfcmVxdWVzdCZYLUFtei1EYXRlPTIwMjQwNjAxVDExMzMzN1omWC1BbXotRXhwaXJlcz0zMDAmWC1BbXotU2lnbmF0dXJlPTY3M2QwM2RjOTlhZmRkZDQwMTUxZmQ2OTYxYzk5NDc0ZTJjMzg0YmY3ZmVmZjJmOThlNGQ5OTVhODA3ODA1MzEmWC1BbXotU2lnbmVkSGVhZGVycz1ob3N0JmFjdG9yX2lkPTAma2V5X2lkPTAmcmVwb19pZD0wIn0.oAnIWm22If9Pg2SHJDvMtBhA_hG-AtBWFJuSfZ09TQ4" alt="project-screenshot" width="1375">
