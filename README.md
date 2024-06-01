@@ -11,11 +11,11 @@
 
 Technologies used in the project:
 
-*   TypeScript
-*   React
-*   Flask
-*   Python
-*   Shadcn Ui
+* ![TypeScript](https://img.shields.io/badge/-TypeScript-007ACC?style=flat&logo=typescript&logoColor=white)
+* ![React](https://img.shields.io/badge/-React-61DAFB?style=flat&logo=react&logoColor=white)
+* ![Flask](https://img.shields.io/badge/-Flask-000000?style=flat&logo=flask&logoColor=white)
+* ![Python](https://img.shields.io/badge/-Python-3776AB?style=flat&logo=python&logoColor=white)
+* ![Shadcn UI](https://img.shields.io/badge/-Shadcn%20UI-0A0A0A?style=flat&logo=shadcn&logoColor=white)
 
 <h2>Project Screenshots:</h2>
 
