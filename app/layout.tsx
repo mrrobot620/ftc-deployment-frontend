@@ -31,6 +31,7 @@ export default function RootLayout({
       >
           <SideNavBar />
           <div className="p-8 w-full">{children}</div>
+          <Analytics />
           </ThemeProvider>
         </body>
     </html>
