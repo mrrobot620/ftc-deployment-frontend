@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useState } from "react";
 import PageTitle from "@/components/ui/PageTitle";
 import { Button } from "@/components/ui/button";
@@ -22,7 +22,7 @@ import {
   AlertDialogDescription
 } from "@/components/ui/alert-dialog";
 
-
+import { ModeToggle } from "@/components/ui/theme-button";
 
 export default function AddUser() {
   const [casper, setCasper] = useState("");
@@ -30,7 +30,6 @@ export default function AddUser() {
   const [department, setDepartment] = useState("");
   const [designation, setDesignation] = useState("");
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
-
 
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -60,7 +59,7 @@ export default function AddUser() {
         setDesignation("");
       } else if (response.status === 409) {
         const responseData = await response.json();
-        const error = responseData["Error"]
+        const error = responseData["Error"];
         setShowAlert({ isOpen: true, title: "User Already Exists", message: error });
       }
     } catch (error) {
@@ -70,10 +69,17 @@ export default function AddUser() {
 
   return (
     <>
-      <PageTitle title="Add Casper" />
+      <div className="flex-1 space-y-4 p-6 pt-5 pl-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight"></h2>
+          <div className="flex items-center space-x-2">
+            <ModeToggle></ModeToggle>
+          </div>
+        </div>
+      </div>
       <div className="min-h-screen flex flex-col items-center pt-10 gap-5">
-        <div className="flex flex-col items-center w-full">
-          <Card className="w-[500px]">
+        <div className="flex flex-col items-center w-full px-4">
+          <Card className="w-full max-w-md">
             <CardHeader>
               <CardTitle>Add FTC</CardTitle>
               <CardDescription>Please enter the below details</CardDescription>
@@ -107,9 +113,7 @@ export default function AddUser() {
         </div>
       </div>
       {/* Alert Dialog */}
-      <AlertDialog
-        open={showAlert.isOpen}
-      >
+      <AlertDialog open={showAlert.isOpen}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle>{showAlert.title}</AlertDialogTitle>

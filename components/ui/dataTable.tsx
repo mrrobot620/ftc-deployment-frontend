@@ -142,7 +142,7 @@ export function DataTableDemo() {
 
   return (
     <>
-      <div className="w-full">
+      <div className="w-full pt-[-2]">
         <div className="flex items-center py-4">
           <Input
             placeholder="Search Casper"

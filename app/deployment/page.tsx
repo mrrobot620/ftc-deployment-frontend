@@ -14,6 +14,9 @@ import {
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
 
+import { ModeToggle } from "@/components/ui/theme-button";
+
+
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -209,13 +212,19 @@ export default function UsersPage({ }: Props) {
       console.error("Error adding deployment:", error);
     }
 
-
   };
 
   return (
     <>
-       <PageTitle title="Deployment Page" />
-  <div className="min-h-screen flex flex-col items-center pt-10 gap-5">
+     <div className="flex-1 space-y-4 p-6 pt-5 pl-10">
+        <div className="flex items-center justify-between">
+          <h2 className="text-3xl font-bold tracking-tight "></h2>
+          <div className="flex items-center space-x-2">
+          <ModeToggle></ModeToggle>
+        </div>
+      </div>
+      </div>
+  <div className="min-h-screen flex flex-col items-center pt-1 gap-5">
     <div className="flex flex-col items-center w-full px-4 sm:px-6 lg:px-8">
       <Card className="w-full max-w-md">
         <CardHeader>
