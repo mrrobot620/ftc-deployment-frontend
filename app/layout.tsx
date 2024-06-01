@@ -5,6 +5,8 @@ import { cn } from '../lib/utils';
 import SideNavBar from "@/components/ui/SideNavBar";
 import { ThemeProvider } from "@/components/ui/theme-provider";
 
+import { Analytics } from "@vercel/analytics/react"
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
