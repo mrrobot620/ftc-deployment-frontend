@@ -2,11 +2,10 @@ import React, { useState } from "react";
 import { Sheet, SheetContent, SheetHeader, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu, LayoutDashboard, Send, Users2, Settings, UserPlus } from "lucide-react";
-import { Nav } from "./nav";
+import { Nav2 } from "./nav2";
 
 export default function MobileSideBar() {
-  const mobileWidth = false; // Adjust this logic as needed
-
+  const mobileWidth = false; 
   return (
     <Sheet>
       <SheetTrigger asChild>
@@ -19,8 +18,7 @@ export default function MobileSideBar() {
         <SheetHeader className="flex flex-row justify-between items-center">
           <span>Deployment Manager</span>
         </SheetHeader>
-        <Nav
-          isCollapsed={mobileWidth} 
+        <Nav2
           links={[
             {
               title: "Dashboard",
