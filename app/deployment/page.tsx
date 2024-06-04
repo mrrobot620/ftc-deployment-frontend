@@ -63,6 +63,7 @@ interface Casper {
   search: string;
 }
 
+
 export default function UsersPage({ }: Props) {
   const [date, setDate] = useState<Date>();
   const [zones, setZones] = useState<string[]>([]);
@@ -71,6 +72,8 @@ export default function UsersPage({ }: Props) {
   const [selectedStation, setSelectedStation] = useState<string>("");
   const [casperOptions, setCasperOptions] = useState<Option[]>([]);
   const [caspers, setCaspers] = useState<string[]>([]);
+
+  
   const [shift, setShift] = useState("");
   const [selectorKey, setSelectorKey] = useState(0);
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
@@ -132,6 +135,7 @@ export default function UsersPage({ }: Props) {
           name: casper.name
         }));
         setCasperOptions(options);
+        console.log(options)
       } catch (error) {
         console.error("Error fetching caspers:", error);
       }
@@ -177,19 +181,20 @@ export default function UsersPage({ }: Props) {
       });
 
       if (response.ok) {
+
+        
         const result = await response.json();
 
-        // Constructing the message
-        const deployedNames = result.Deployed.map((casperId: string )=> {
-          const casper = casperOptions.find(option => option.id === casperId);
-          return casper ? casper.label : `ID: ${casperId}`;
+        const deployedNames = result.Deployed.map((casperId: string) => {
+          const casper = casperOptions.find(option => String(option.id)=== casperId);
+          return casper ? `${casper.label}` : `ID: ${casperId}`;
         }).join(", ");
-
-        const alreadyDeployedNames = result["Already Deployed"].map((casperId: string )=> {
-          const casper = casperOptions.find(option => option.id === casperId);
-          return casper ? casper.label : `ID: ${casperId}`;
+        
+        const alreadyDeployedNames = result["Already Deployed"].map((casperId: string) => {
+          const casper = casperOptions.find(option => String(option.id) === casperId);
+          return casper ? `${casper.label}` : `ID: ${casperId}`;
         }).join(", ");
-
+        
         const message = `
           ${deployedNames ? `Deployed: ${deployedNames}` : ""}
           ${alreadyDeployedNames ? `Already Deployed: ${alreadyDeployedNames}` : ""}

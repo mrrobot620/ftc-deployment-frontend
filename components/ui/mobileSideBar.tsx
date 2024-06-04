@@ -20,7 +20,7 @@ export default function MobileSideBar() {
           <span>Deployment Manager</span>
         </SheetHeader>
         <Nav
-          isCollapsed={mobileWidth} // Pass the isCollapsed prop
+          isCollapsed={mobileWidth} 
           links={[
             {
               title: "Dashboard",

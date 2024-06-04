@@ -48,6 +48,10 @@ import { title } from "process";
 
 import { CardTable } from "@/components/ui/card-table";
 
+import BarCharComponent from "@/components/ui/bar-chart";
+import BarChartComponent from "@/components/ui/bar-chart";
+
+
 export default function Home() {
   const [date, setDate] = useState<Date>();
   const [overView, setOverView] = useState<any>({});
@@ -110,6 +114,7 @@ export default function Home() {
 
   return (
     <>
+   
       <div className="flex-1 space-y-4 p-6 pt-5 pl-6">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight"></h2>
@@ -156,6 +161,8 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      <div className="card-container">
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 pt-2 p-5">
         <div
@@ -390,6 +397,8 @@ export default function Home() {
             <StationDataTable apiUrl={apiUrl} />
           </CardContent>
         </Card>
+      
+      </div>
       </div>
 
       <AlertDialog open={showAlert.isOpen}>
