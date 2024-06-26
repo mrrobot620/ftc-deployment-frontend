@@ -47,16 +47,29 @@ import { StationDataTable } from "@/components/ui/station-wise-table";
 import { title } from "process";
 
 import { CardTable } from "@/components/ui/card-table";
+import { stat } from "fs";
 
-import BarCharComponent from "@/components/ui/bar-chart";
-import BarChartComponent from "@/components/ui/bar-chart";
+export type Deployment = {
+  id: string;
+  casper: string;
+  name: string;
+  department: string;
+  shift: string;
+  type: string;
+  station: string;
+};
 
+export type StationData = {
+  station: string;
+  wf: number;
+};
 
 export default function Home() {
   const [date, setDate] = useState<Date>();
   const [overView, setOverView] = useState<any>({});
   const [shift, setShift] = useState<string>("");
   const [apiUrl, setApiUrl] = useState<string>("");
+  const [data, setData] = useState<Deployment[]>([]);
   const [showAlert, setShowAlert] = useState({
     isOpen: false,
     title: "",
@@ -65,6 +78,8 @@ export default function Home() {
   });
   const [stationView, setStationView] = useState<any>({});
 
+  const [stationData, setStationData] = useState<StationData[]>([]);
+
   const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
   const formattedDate = date ? format(date, "yyyy-MM-dd") : null;
@@ -72,17 +87,36 @@ export default function Home() {
   const fetchDeployment = async () => {
     if (date && shift) {
       const url = `${API_URL}/get_deployment?date=${formattedDate}&shift=${shift}`;
-      setApiUrl(url); // Update apiUrl state
-
+      setApiUrl(url);
       try {
         const response = await fetch(url);
         if (!response.ok) {
           throw new Error("Network response was not ok");
         }
         const data = await response.json();
+
+        const deploymentData = data.data.map((item: any) => ({
+          id: item.id.toString(),
+          casper: item.casper.casper_id,
+          department: item.casper.department,
+          shift: item.shift,
+          name: item.casper.name,
+          type: item.station.type,
+          station: item.station.station,
+        }));
+
+        const stationWiseData = Object.entries(data.stations_wise.type).map(
+          ([station, wf]) => ({
+            station,
+            wf: Number(wf),
+          })
+        );
+
+        setStationData(stationWiseData);
+        setData(deploymentData);
         setOverView(data.overview);
         setStationView(data.stations_wise);
-        console.log("", data.stations_wise);
+        console.log("Station View Data => ", data.stations_wise);
       } catch (error) {
         console.error("Error fetching zones:", error);
         setShowAlert({
@@ -114,11 +148,10 @@ export default function Home() {
 
   return (
     <>
-   
       <div className="flex-1 space-y-4 p-6 pt-5 pl-6">
         <div className="flex items-center justify-between">
           <h2 className="text-3xl font-bold tracking-tight"></h2>
-          <div className="flex items-center space-x-2">
+          <div className="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-2">
             <ModeToggle></ModeToggle>
             <div>
               <Popover>
@@ -163,242 +196,243 @@ export default function Home() {
       </div>
 
       <div className="card-container">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 pt-2 p-5">
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: <CardTable apiData={data} type=""></CardTable>,
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Total WF</CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {primaryCount +
+                    supCount +
+                    secondaryCount +
+                    trolleyMovementCount +
+                    gridCount}
+                </div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: <CardTable apiData={data} type="Primary"></CardTable>,
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Primary</CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                  <circle cx="9" cy="7" r="4" />
+                  <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold"> {primaryCount}</div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: (
+                  <CardTable apiData={data} type="Secondary"></CardTable>
+                ),
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Secondary</CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <rect width="20" height="14" x="2" y="5" rx="2" />
+                  <path d="M2 10h20" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{secondaryCount}</div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: <CardTable apiData={data} type="Grid"></CardTable>,
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Grid</CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{gridCount}</div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: <CardTable apiData={data} type="tm"></CardTable>,
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Trolley Movement
+                </CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{trolleyMovementCount}</div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+          <div
+            onClick={() =>
+              setShowAlert({
+                isOpen: true,
+                title: "Total WF",
+                message: "",
+                content: <CardTable apiData={data} type="sup"></CardTable>,
+              })
+            }
+          >
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">SUP/SME</CardTitle>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth="2"
+                  className="h-4 w-4 text-muted-foreground"
+                >
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                </svg>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{supCount}</div>
+                <p className="text-xs text-muted-foreground"></p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
 
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-6 pt-2 p-5">
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type=""></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total WF</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
-              </svg>
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-3 p-5">
+          <Card className="col-span-7 md:col-span-2 lg:col-span-4">
+            <CardHeader>
+              <CardTitle>Data</CardTitle>
+              {shift && formattedDate && (
+                <CardDescription>
+                  {" "}
+                  Date: {formattedDate} Shift: {shift}
+                </CardDescription>
+              )}
+            </CardHeader>
+            <CardContent className="pl-2">
+              <DeploymentDataTable
+                deploymentData={data}
+                onUpdateDeployment={handleDeleteSuccess}
+              />
+            </CardContent>
+          </Card>
+          <Card className="col-span-7 md:col-span-2 lg:col-span-3">
+            <CardHeader>
+              <CardTitle>Stations</CardTitle>
+              <CardDescription>Station Wise Deployment</CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">
-                {primaryCount +
-                  supCount +
-                  secondaryCount +
-                  trolleyMovementCount +
-                  gridCount}
-              </div>
-              <p className="text-xs text-muted-foreground"></p>
+              <StationDataTable stationData={stationData} />
+              {/* I have added s after the statio */}
             </CardContent>
           </Card>
         </div>
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type="Primary"></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Primary</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
-                <circle cx="9" cy="7" r="4" />
-                <path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold"> {primaryCount}</div>
-              <p className="text-xs text-muted-foreground"></p>
-            </CardContent>
-          </Card>
-        </div>
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type="Secondary"></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Secondary</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <rect width="20" height="14" x="2" y="5" rx="2" />
-                <path d="M2 10h20" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{secondaryCount}</div>
-              <p className="text-xs text-muted-foreground"></p>
-            </CardContent>
-          </Card>
-        </div>
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type="Grid"></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Grid</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{gridCount}</div>
-              <p className="text-xs text-muted-foreground"></p>
-            </CardContent>
-          </Card>
-        </div>
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type="tm"></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">
-                Trolley Movement
-              </CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{trolleyMovementCount}</div>
-              <p className="text-xs text-muted-foreground"></p>
-            </CardContent>
-          </Card>
-        </div>
-        <div
-          onClick={() =>
-            setShowAlert({
-              isOpen: true,
-              title: "Total WF",
-              message: "",
-              content: <CardTable apiUrl={apiUrl} type="sup"></CardTable>,
-            })
-          }
-        >
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">SUP/SME</CardTitle>
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                className="h-4 w-4 text-muted-foreground"
-              >
-                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
-              </svg>
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{supCount}</div>
-              <p className="text-xs text-muted-foreground"></p>
-            </CardContent>
-          </Card>
-        </div>
-      </div>
-
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7 pt-3 p-5">
-        <Card className="col-span-7 md:col-span-2 lg:col-span-4">
-          <CardHeader>
-            <CardTitle>Data</CardTitle>
-            {shift && formattedDate && (
-              <CardDescription>
-                {" "}
-                Date: {formattedDate} Shift: {shift}
-              </CardDescription>
-            )}
-          </CardHeader>
-          <CardContent className="pl-2">
-            <DeploymentDataTable
-              apiUrl={apiUrl}
-              onUpdateDeployment={handleDeleteSuccess}
-            />
-          </CardContent>
-        </Card>
-        <Card className="col-span-7 md:col-span-2 lg:col-span-3">
-          <CardHeader>
-            <CardTitle>Stations</CardTitle>
-            <CardDescription>Station Wise Deployment</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <StationDataTable apiUrl={apiUrl} />
-          </CardContent>
-        </Card>
-      
-      </div>
       </div>
 
       <AlertDialog open={showAlert.isOpen}>

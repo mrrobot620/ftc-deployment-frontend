@@ -6,7 +6,8 @@ import {
   Users2,
   Settings,
   ChevronRight,
-  UserPlus
+  UserPlus,
+  MessageCircle
 } from "lucide-react";
 import { Button } from "../ui/button";
 import {
@@ -65,6 +66,13 @@ export default function SideNavBar({}: Props) {
             icon: Users2,
             variant: "ghost",
             href: "/users"
+          },
+          {
+            title: "chat",
+            label: "",
+            icon: MessageCircle,
+            variant: "ghost",
+            href: "/chat"
           },
           {
             title: "Settings",

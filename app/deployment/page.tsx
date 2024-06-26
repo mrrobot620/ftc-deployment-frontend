@@ -13,9 +13,7 @@ import {
 } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Calendar as CalendarIcon } from "lucide-react";
-
 import { ModeToggle } from "@/components/ui/theme-button";
-
 
 import { cn } from "@/lib/utils";
 import { Calendar } from "@/components/ui/calendar";
@@ -46,6 +44,7 @@ import {
 
 
 import { captureRejectionSymbol } from "events";
+import { Mukta } from "next/font/google";
 
 type Props = {};
 
@@ -72,13 +71,10 @@ export default function UsersPage({ }: Props) {
   const [selectedStation, setSelectedStation] = useState<string>("");
   const [casperOptions, setCasperOptions] = useState<Option[]>([]);
   const [caspers, setCaspers] = useState<string[]>([]);
-
-  
+  const [value, setValue] = useState<string[]>([]);
   const [shift, setShift] = useState("");
   const [selectorKey, setSelectorKey] = useState(0);
   const [showAlert, setShowAlert] = useState({ isOpen: false, title: "", message: "" });
-
-
 
   useEffect(() => {
     const fetchZones = async () => {

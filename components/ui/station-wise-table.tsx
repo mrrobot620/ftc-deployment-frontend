@@ -12,19 +12,7 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table"
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react"
-
 import { Button } from "@/components/ui/button"
-import { Checkbox } from "@/components/ui/checkbox"
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
 import {
   Table,
@@ -61,12 +49,20 @@ export const columns: ColumnDef<Deployment>[] = [
 ]
 
 type DeploymentDataTableProps = {
-  apiUrl: string
+  stationData: Deployment[];
 }
 
-export function StationDataTable({ apiUrl }: DeploymentDataTableProps) {
+export function StationDataTable({ stationData }: DeploymentDataTableProps) {
   const [sorting, setSorting] = React.useState<SortingState>([])
   const [data , setData] = useState<Deployment[]>([]);
+  useEffect(() => {
+    if (Array.isArray(stationData)) {
+      setData(stationData); 
+    } else {
+      console.log("Station data is not an array:", stationData);
+    }
+  }, [stationData]);
+
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   )
@@ -97,32 +93,6 @@ export function StationDataTable({ apiUrl }: DeploymentDataTableProps) {
       rowSelection,
     },
   })
-
-  useEffect(() => {
-    const fetchDeployment = async () => {
-      try {
-        const response = await fetch(apiUrl);
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        const result = await response.json();
-
-        const transformedData = Object.entries(result.stations_wise.type).map(
-          ([station, wf]) => ({
-            station,
-            wf: Number(wf),
-          })
-        );
-
-        setData(transformedData);
-        console.log(transformedData);
-      } catch (error) {
-        console.error("Error fetching deployment data:", error);
-      }
-    };
-    fetchDeployment();
-  }, [apiUrl]);
-
 
 
   return (

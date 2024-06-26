@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect , useCallback } from "react";
+import React, { useState , useEffect } from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -12,10 +12,9 @@ import {
   getSortedRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
+import { ArrowUpDown } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-
 import { Input } from "@/components/ui/input";
 import {
   Table,
@@ -37,53 +36,23 @@ export type Deployment = {
 };
 
 type DeploymentDataTableProps = {
-  apiUrl: string;
+  apiData: Deployment[];
   type: string;
 };
 
-export function CardTable ({ apiUrl , type }: DeploymentDataTableProps) {
+export function CardTable({ apiData, type }: DeploymentDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
+  console.log(apiData);
   const [data, setData] = useState<Deployment[]>([]);
+  useEffect(() => {
+    if (Array.isArray(apiData)) {
+      setData(apiData.filter((item) => type === "" || item.type === type));
+    }
+  }, [apiData, type]);
+  console.log("data => " )
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-
-  const fetchDeployment = useCallback( async () => {
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const result = await response.json();
-
-      const transformedData = result.data
-      .map((item: any) => ({
-        id: item.id.toString(),
-        casper: item.casper.casper_id,
-        department: item.casper.department,
-        shift: item.shift,
-        name: item.casper.name,
-        type: item.station.type,
-        station: item.station.station,
-      }))
-      .filter((item: Deployment) => type === "" || item.type === type);
-
-    setData(transformedData);
-    console.log(transformedData);
-
-      
-      setData(transformedData);
-      console.log(transformedData);
-    } catch (error) {
-      console.error("Error fetching deployment data:", error);
-    }
-  }, [apiUrl , type]);
-
-  useEffect(() => {
-    fetchDeployment();
-  }, [fetchDeployment]);
-
-
 
   const columns: ColumnDef<Deployment>[] = [
     {
@@ -169,18 +138,16 @@ export function CardTable ({ apiUrl , type }: DeploymentDataTableProps) {
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => {
-                  return (
-                    <TableHead key={header.id}>
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext()
-                          )}
-                    </TableHead>
-                  );
-                })}
+                {headerGroup.headers.map((header) => (
+                  <TableHead key={header.id}>
+                    {header.isPlaceholder
+                      ? null
+                      : flexRender(
+                          header.column.columnDef.header,
+                          header.getContext()
+                        )}
+                  </TableHead>
+                ))}
               </TableRow>
             ))}
           </TableHeader>

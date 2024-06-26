@@ -13,9 +13,7 @@ import {
   useReactTable,
 } from "@tanstack/react-table";
 import { ArrowUpDown, ChevronDown, MoreHorizontal } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
@@ -46,46 +44,23 @@ export type Deployment = {
 };
 
 type DeploymentDataTableProps = {
-  apiUrl: string;
+  deploymentData: Deployment[];
   onUpdateDeployment: () => void;
 };
 
-export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentDataTableProps) {
+export function DeploymentDataTable({ deploymentData , onUpdateDeployment }: DeploymentDataTableProps) {
   const [sorting, setSorting] = useState<SortingState>([]);
   const [data, setData] = useState<Deployment[]>([]);
+  useEffect(() => {
+    if (Array.isArray(deploymentData)) {
+      setData(deploymentData);
+    } else {
+      console.log("Deployment data is not an array:", deploymentData);
+    }
+  }, [deploymentData]);
   const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
   const [rowSelection, setRowSelection] = useState({});
-  
-  const fetchDeployment = useCallback(async () => {
-    try {
-      const response = await fetch(apiUrl);
-      if (!response.ok) {
-        throw new Error("Network response was not ok");
-      }
-      const result = await response.json();
-
-      const transformedData = result.data.map((item: any) => ({
-        id: item.id.toString(),
-        casper: item.casper.casper_id,
-        department: item.casper.department,
-        shift: item.shift,
-        name: item.casper.name,
-        type: item.station.type,
-        station: item.station.station,
-      }));
-
-      setData(transformedData);
-      console.log(transformedData);
-    } catch (error) {
-      console.error("Error fetching deployment data:", error);
-    }
-  }, [apiUrl]);
-
-  useEffect(() => {
-    fetchDeployment();
-  }, [fetchDeployment]);
-
   const deleteDeployment = async (id: string) => {
     const API_URL = process.env.NEXT_PUBLIC_API_URL;
     try {
@@ -99,7 +74,6 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
 
       const data = await response.json();
       console.log(data);
-      fetchDeployment(); 
       onUpdateDeployment();
     } catch (error) {
       console.error("Failed to delete deployment:", error);
@@ -131,28 +105,6 @@ export function DeploymentDataTable({ apiUrl , onUpdateDeployment }: DeploymentD
   };
 
   const columns: ColumnDef<Deployment>[] = [
-    {
-      id: "select",
-      header: ({ table }) => (
-        <Checkbox
-          checked={
-            table.getIsAllPageRowsSelected() ||
-            (table.getIsSomePageRowsSelected() && "indeterminate")
-          }
-          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
-          aria-label="Select all"
-        />
-      ),
-      cell: ({ row }) => (
-        <Checkbox
-          checked={row.getIsSelected()}
-          onCheckedChange={(value) => row.toggleSelected(!!value)}
-          aria-label="Select row"
-        />
-      ),
-      enableSorting: false,
-      enableHiding: false,
-    },
     {
       accessorKey: "casper",
       header: "Casper",
