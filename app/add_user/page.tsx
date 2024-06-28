@@ -159,7 +159,7 @@ export default function AddUser() {
                   <CardHeader>
                     <CardTitle>Add Multiple User</CardTitle>
                     <CardDescription>
-                      Upload the CSV User's File to add them in the App.
+                      Upload the CSV User&apos;s File to add them in the App.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="space-y-2">
